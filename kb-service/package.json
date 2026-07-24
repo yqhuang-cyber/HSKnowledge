@@ -1,0 +1,10 @@
+{
+  "name": "hsk-kb-service",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "dev": "node --watch src/server.mjs"
+  }
+}

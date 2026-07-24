@@ -1,0 +1,20 @@
+{
+  "built_at": "2026-07-24T14:30:55.566Z",
+  "source_hashes": {
+    "kg_data": "523a25a984a94aab",
+    "teacher_data": "4ccbae1d46d8e3fa"
+  },
+  "totals": {
+    "chunks": 718,
+    "nodes_in": 719,
+    "nodes_deduped": 718,
+    "edges": 941,
+    "by_type": {
+      "word": 312,
+      "character": 256,
+      "grammar": 119,
+      "topic": 16,
+      "task": 15
+    }
+  }
+}

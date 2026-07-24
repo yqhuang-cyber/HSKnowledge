@@ -80,6 +80,9 @@ hsk-portal/
 │   ├── kg_data.json        # 知识图谱：节点 + 关系
 │   ├── teacher_data.json   # 教案向分类（词汇/语法/话题等）
 │   └── ontology.jsonld     # 本体模型（类、属性定义）
+├── kb/                     # 检索用知识块（由脚本生成）
+├── kb-service/             # 本地检索 API（对接大模型 / 火山 ChatRAGText）
+├── scripts/build-chunks.mjs
 ├── src/
 │   ├── App.vue             # 顶栏 + 标签页切换
 │   ├── components/         # 各个功能面板
@@ -87,6 +90,7 @@ hsk-portal/
 │   └── assets/main.css     # 全局样式
 ├── docs/
 │   ├── ontology/           # 本体说明 + 建模模版（可复用到 HSK2 等）
+│   ├── kb/                 # 知识库检索与大模型对接说明
 │   └── superpowers/        # 开发过程设计稿（可选）
 ├── package.json
 └── vite.config.js
@@ -95,12 +99,25 @@ hsk-portal/
 常用命令：
 
 ```bash
-npm run dev      # 本地开发预览
-npm run build    # 打包到 dist/
-npm run preview  # 预览打包结果
+npm run dev           # 本地开发预览（教师门户）
+npm run build         # 打包到 dist/
+npm run preview       # 预览打包结果
+npm run build:chunks  # 从 public 数据生成 kb/chunks.jsonl
 ```
 
-技术栈：Vue 3 + Vite；图谱渲染使用 vis-network。
+技术栈：Vue 3 + Vite；图谱渲染使用 vis-network；检索服务为 Node（无额外依赖）。
+
+---
+
+## 知识库检索服务（给大模型用）
+
+教师门户负责**给人看**；`kb-service` 负责**给大模型检索**：
+
+1. `npm run build:chunks` 生成知识块  
+2. `cd kb-service && npm start` 启动 `http://127.0.0.1:8787`  
+3. `POST /retrieve` 取回相关 HSK1 知识点；`format: "chat_rag_text"` 可直接得到火山 RealtimeAPI **`ChatRAGText`** 可用的文本  
+
+说明与示例见：[docs/kb/retrieve-for-llm.md](./docs/kb/retrieve-for-llm.md)
 
 ---
 
