@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "build:chunks": "node scripts/build-chunks.mjs"
+    "build:chunks": "node scripts/build-chunks.mjs",
+    "build:embeddings": "node scripts/build-embeddings.mjs"
   },
   "dependencies": {
     "vis-network": "^10.1.0",

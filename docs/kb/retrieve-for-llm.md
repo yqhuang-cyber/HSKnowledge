@@ -15,7 +15,12 @@
 # 1. 从 public 数据生成知识块（改完 kg/teacher 数据后请重跑）
 npm run build:chunks
 
-# 2. 启动检索服务（默认 http://127.0.0.1:8787）
+# 2. 生成向量（需 Python3 + fastembed；国内可设 HF 镜像）
+#    pip3 install --user -i https://pypi.tuna.tsinghua.edu.cn/simple "numpy<2" fastembed
+export HF_ENDPOINT=https://hf-mirror.com   # 若 huggingface.co 超时
+npm run build:embeddings
+
+# 3. 启动检索服务（默认 http://127.0.0.1:8787；默认 mode=hybrid）
 cd kb-service && npm start
 ```
 
@@ -51,10 +56,12 @@ curl -s -X POST http://127.0.0.1:8787/retrieve \
 |------|------|
 | `query` | 必填，学生发言或意图文本 |
 | `top_k` | 可选，默认 8 |
+| `mode` | 可选：`keyword` / `vector` / `hybrid`（默认 **hybrid**） |
 | `filters` | 可选，按类型 / 考纲 / 级别过滤 |
 | `format` | 设为 `"chat_rag_text"` 时，响应多一个 `rag_text` 字段 |
 
-响应中的 `hits[]` 含：`id`, `score`, `chunk_type`, `source_id`, `title`, `text`, `metadata`。
+响应中的 `hits[]` 含：`id`, `score`, `score_keyword`, `score_vector`, `chunk_type`, `source_id`, `title`, `text`, `metadata`。  
+未构建 `kb/embeddings.f32` 时，`hybrid` 会降级为 `keyword`（`degraded: true`）。
 
 ---
 
@@ -102,9 +109,10 @@ curl -s -X POST http://127.0.0.1:8787/retrieve \
 
 | 路径 | 说明 |
 |------|------|
-| `scripts/build-chunks.mjs` | 构建脚本 |
+| `scripts/build-chunks.mjs` | 知识块构建 |
+| `scripts/build-embeddings.py` | 向量构建（fastembed / `BAAI/bge-small-zh-v1.5`） |
 | `kb/chunks.jsonl` | 知识块 |
-| `kb/chunks.meta.json` | 构建元信息 |
-| `kb-service/` | 检索服务 |
+| `kb/embeddings.f32` + `embeddings.meta.json` | 向量矩阵 |
+| `kb-service/` | 检索服务（在线 query 经 Python worker 嵌入） |
 
-一期为 **关键词检索**；向量 / 混合检索见方案二期。
+二期：本地向量 + 混合检索；对接火山 `ChatRAGText` 不变。

@@ -1,7 +1,8 @@
 # HSK1 检索知识库 · 二期（本地向量 + 混合检索）设计
 
 **日期:** 2026-07-24  
-**状态:** 待用户确认  
+**状态:** 已确认并开工（2026-07-24）  
+**实现备注:** 本机 `@xenova/transformers` 依赖的 `sharp` 无法编译，已落地为 **Python `fastembed` + `BAAI/bge-small-zh-v1.5`**：离线 `scripts/build-embeddings.py`；在线 `kb-service` 经常驻 `py_embed_worker.py` 只 embed 当前 query（等价 C2，向量文件仍为 `embeddings.f32`）。国内拉取模型建议 `export HF_ENDPOINT=https://hf-mirror.com`。  
 **前置:** 一期已交付（关键词 `/retrieve` + `ChatRAGText` 文本）  
 **关联方案:** [2026-07-24-hsk1-retrieval-kb-for-llm-design.md](./2026-07-24-hsk1-retrieval-kb-for-llm-design.md)
 

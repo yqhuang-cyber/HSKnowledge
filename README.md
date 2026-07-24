@@ -2,7 +2,9 @@
 
 面向 HSK1 教师的本地知识工具：用可视化方式查看**词汇、汉字、语法、话题、任务**之间的关系，并对照 **2026 实施版考纲** 与 **Kai HSK1 课程** 的覆盖情况。
 
-> 数据版本：**HSK1 知识图谱 v2.1**（约 719 个知识点、941 条关系）
+同一套数据也支撑 **本地检索知识库**（`kb-service`）：给课堂陪练 / 大模型做知识点召回，可对接火山 RealtimeAPI 的 **`ChatRAGText`**（关键词 + 本地向量混合检索）。
+
+> 数据版本：**HSK1 知识图谱 v2.1**（约 719 个知识点、941 条关系；检索侧约 718 个知识块）
 
 ---
 
@@ -76,22 +78,25 @@ npm run dev
 
 ```
 hsk-portal/
-├── public/                 # 静态数据（改完刷新页面即可）
-│   ├── kg_data.json        # 知识图谱：节点 + 关系
-│   ├── teacher_data.json   # 教案向分类（词汇/语法/话题等）
-│   └── ontology.jsonld     # 本体模型（类、属性定义）
-├── kb/                     # 检索用知识块（由脚本生成）
-├── kb-service/             # 本地检索 API（对接大模型 / 火山 ChatRAGText）
-├── scripts/build-chunks.mjs
-├── src/
-│   ├── App.vue             # 顶栏 + 标签页切换
-│   ├── components/         # 各个功能面板
-│   ├── utils/ontologyMap.js# 图谱节点 ↔ 本体术语映射
-│   └── assets/main.css     # 全局样式
+├── public/                      # 静态数据（改完刷新页面即可）
+│   ├── kg_data.json             # 知识图谱：节点 + 关系
+│   ├── teacher_data.json        # 教案向分类（词汇/语法/话题等）
+│   └── ontology.jsonld          # 本体模型（类、属性定义）
+├── kb/                          # 检索产物（由脚本生成，勿手改）
+│   ├── chunks.jsonl             # 知识块
+│   ├── embeddings.f32           # 向量矩阵（二期）
+│   └── embeddings.meta.json
+├── kb-service/                  # 本地检索 API（默认 hybrid）
+│   ├── requirements.txt         # Python：fastembed（向量）
+│   └── src/                     # Node 服务 + Python embed worker
+├── scripts/
+│   ├── build-chunks.mjs         # public → chunks
+│   └── build-embeddings.py      # chunks → embeddings.f32
+├── src/                         # 教师门户前端
 ├── docs/
-│   ├── ontology/           # 本体说明 + 建模模版（可复用到 HSK2 等）
-│   ├── kb/                 # 知识库检索与大模型对接说明
-│   └── superpowers/        # 开发过程设计稿（可选）
+│   ├── ontology/                # 本体说明 + 建模模版
+│   ├── kb/                      # 检索与大模型对接说明
+│   └── superpowers/             # 设计稿 / 实现计划
 ├── package.json
 └── vite.config.js
 ```
@@ -99,25 +104,58 @@ hsk-portal/
 常用命令：
 
 ```bash
-npm run dev           # 本地开发预览（教师门户）
-npm run build         # 打包到 dist/
-npm run preview       # 预览打包结果
-npm run build:chunks  # 从 public 数据生成 kb/chunks.jsonl
+npm run dev              # 本地开发预览（教师门户）
+npm run build            # 打包到 dist/
+npm run preview          # 预览打包结果
+npm run build:chunks     # 从 public 数据生成 kb/chunks.jsonl
+npm run build:embeddings # 生成 kb/embeddings.f32（需 Python + fastembed）
 ```
 
-技术栈：Vue 3 + Vite；图谱渲染使用 vis-network；检索服务为 Node（无额外依赖）。
+技术栈：Vue 3 + Vite + vis-network；检索服务 Node（关键词 / 混合）+ Python `fastembed`（`BAAI/bge-small-zh-v1.5`）。
 
 ---
 
 ## 知识库检索服务（给大模型用）
 
-教师门户负责**给人看**；`kb-service` 负责**给大模型检索**：
+教师门户负责**给人看**；`kb-service` 负责**给大模型检索**。
 
-1. `npm run build:chunks` 生成知识块  
-2. `cd kb-service && npm start` 启动 `http://127.0.0.1:8787`  
-3. `POST /retrieve` 取回相关 HSK1 知识点；`format: "chat_rag_text"` 可直接得到火山 RealtimeAPI **`ChatRAGText`** 可用的文本  
+### 启动步骤
 
-说明与示例见：[docs/kb/retrieve-for-llm.md](./docs/kb/retrieve-for-llm.md)
+```bash
+# 1) 知识块（改完 public 数据后重跑）
+npm run build:chunks
+
+# 2) 向量（二期；口语/语义召回需要）
+pip3 install --user -r kb-service/requirements.txt
+export HF_ENDPOINT=https://hf-mirror.com   # 若 huggingface.co 超时
+npm run build:embeddings
+
+# 3) 检索服务
+cd kb-service && npm start
+# → http://127.0.0.1:8787
+```
+
+未生成 `embeddings.f32` 时服务仍可启动：`hybrid` 会降级为纯关键词。
+
+### 能力一览
+
+| 能力 | 说明 |
+|------|------|
+| `POST /retrieve` | 检索知识点；默认 **`mode=hybrid`**（关键词 + 向量融合） |
+| `mode` | `keyword` / `vector` / `hybrid` |
+| `format: "chat_rag_text"` | 响应多返回 `rag_text`，可直接作火山 **`ChatRAGText`** |
+| `GET /health` · `GET /stats` | 健康检查；`stats` 含向量是否已加载 |
+
+示例：
+
+```bash
+curl -s -X POST http://127.0.0.1:8787/retrieve \
+  -H 'content-type: application/json' \
+  -d '{"query":"点餐","top_k":5,"mode":"hybrid","format":"chat_rag_text"}'
+```
+
+完整对接说明：[docs/kb/retrieve-for-llm.md](./docs/kb/retrieve-for-llm.md)  
+二期设计：[docs/superpowers/specs/2026-07-24-hsk1-retrieval-kb-phase2-vector-design.md](./docs/superpowers/specs/2026-07-24-hsk1-retrieval-kb-phase2-vector-design.md)
 
 ---
 
@@ -144,7 +182,8 @@ GitHub：https://github.com/yqhuang-cyber/HSKnowledge
 
 1. 是否在 `hsk-portal` 目录下执行了 `npm install` / `npm run dev`  
 2. 浏览器控制台是否提示某个 `public/*.json` 找不到  
-3. Node.js 版本是否过旧（建议 18+）
+3. Node.js 版本是否过旧（建议 18+）  
+4. 检索服务向量不可用：是否安装了 `kb-service/requirements.txt`、是否跑过 `npm run build:embeddings`（国内可设 `HF_ENDPOINT=https://hf-mirror.com`）
 
 ---
 

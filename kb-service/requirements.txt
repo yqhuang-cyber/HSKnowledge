@@ -1,0 +1,3 @@
+# Python deps for offline embeddings + online query worker
+numpy<2
+fastembed>=0.7
