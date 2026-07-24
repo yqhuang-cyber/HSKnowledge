@@ -85,7 +85,9 @@ hsk-portal/
 │   ├── components/         # 各个功能面板
 │   ├── utils/ontologyMap.js# 图谱节点 ↔ 本体术语映射
 │   └── assets/main.css     # 全局样式
-├── docs/                   # 设计说明（可选阅读）
+├── docs/
+│   ├── ontology/           # 本体说明 + 建模模版（可复用到 HSK2 等）
+│   └── superpowers/        # 开发过程设计稿（可选）
 ├── package.json
 └── vite.config.js
 ```
@@ -107,9 +109,13 @@ npm run preview  # 预览打包结果
 - **考纲内 / 考纲外补充**：是否严格属于 HSK1 2026 实施范围。  
 - **掌握度 L0–L4**：从「未接触」到「流利运用」；总览里会按词汇的「说」目标做统计。  
 - **话题课程覆盖**：已覆盖 / 浅覆盖 / 未覆盖，对应 Kai HSK1 课程是否训到该话题。  
-- **本体**：用统一的「类」和「关系」描述知识点（例如：词由汉字组成、话题关联词汇）。图谱侧栏就是用这套说法来解释你点中的节点。
+- **本体**：用统一的「类」和「关系」描述知识点（例如：词由汉字组成、话题关联词汇）。图谱侧栏就是用这套说法来解释你点中的节点。  
+  - 说明文档与建模模版见：[docs/ontology/](./docs/ontology/)（含 [ONTOLOGY.md](./docs/ontology/ONTOLOGY.md)、JSON-LD / OWL 模版）  
+  - 门户运行时加载：`public/ontology.jsonld`
 
 更新数据时：替换 `public/` 下对应 JSON / JSON-LD 文件后刷新页面。注意节点 `id` 不要重复（例如不要出现两个相同的 `word-字`），否则图谱可能报错。
+
+若要做 **HSK2 / HSK3 / 商务汉语** 等新本体：复制 `docs/ontology/`，按该目录 [README](./docs/ontology/README.md) 修改 namespace 与类即可。
 
 ---
 

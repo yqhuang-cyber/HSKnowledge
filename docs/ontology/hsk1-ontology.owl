@@ -1,0 +1,561 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix hsk1: <http://hsk1.org/ontology#> .
+
+#####################################################################
+# HSK1 知识图谱本体模型 (Ontology)
+# 
+# 描述: HSK1 级中文知识图谱的形式化本体
+# 版本: 1.0
+# 日期: 2026-07-23
+# 遵循: HSK 考试大纲 2026-07 实施版
+# 数据源: 国家中外语言交流合作中心 (汉办)
+#####################################################################
+
+<http://hsk1.org/ontology> rdf:type owl:Ontology ;
+    dcterms:title "HSK1 Knowledge Graph Ontology"@zh ,
+              "HSK1 知识图谱本体"@en ;
+    dcterms:creator "Mavis Agent Team" ;
+    dcterms:created "2026-07-23"^^xsd:date ;
+    dcterms:description "HSK1 级中文学习知识图谱的形式化本体模型，定义知识点类、属性、关系及掌握度评估"@zh ;
+    owl:versionInfo "1.0" ;
+    rdfs:comment "严格遵循 HSK 考试大纲 2026-07 实施版"@zh .
+
+#####################################################################
+# 1. 核心类 (Core Classes)
+#####################################################################
+
+# 顶级抽象类
+hsk1:HSKKnowledgePoint rdf:type owl:Class ;
+    rdfs:label "HSK知识点"@zh ;
+    rdfs:comment "HSK 知识图谱中所有知识点的抽象基类"@zh ;
+    rdfs:subClassOf owl:Thing .
+
+# ===== 1.1 基础语言层 (Foundation Layer) =====
+
+hsk1:Phoneme rdf:type owl:Class ;
+    rdfs:label "音素"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "语音的最小单位（声母、韵母、声调）"@zh .
+
+hsk1:Initial rdf:type owl:Class ;
+    rdfs:label "声母"@zh ;
+    rdfs:subClassOf hsk1:Phoneme ;
+    rdfs:comment "21 个 HSK 声母（b p m f d t n l g k h j q x zh ch sh r z c s y w）"@zh .
+
+hsk1:Final rdf:type owl:Class ;
+    rdfs:label "韵母"@zh ;
+    rdfs:subClassOf hsk1:Phoneme ;
+    rdfs:comment "39 个 HSK 韵母（单韵母、复韵母、鼻韵母、特殊韵母）"@zh .
+
+hsk1:Tone rdf:type owl:Class ;
+    rdfs:label "声调"@zh ;
+    rdfs:subClassOf hsk1:Phoneme ;
+    rdfs:comment "4 个声调 + 变调规则（上声变调、一/不变调）"@zh .
+
+hsk1:Character rdf:type owl:Class ;
+    rdfs:label "汉字"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "中文字符，约 250 个 HSK1 字符"@zh ;
+    rdfs:isDefinedBy <http://hsk1.org/ontology/Character> .
+
+hsk1:Radical rdf:type owl:Class ;
+    rdfs:label "部首"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "汉字的部首（偏旁）"@zh .
+
+hsk1:Stroke rdf:type owl:Class ;
+    rdfs:label "笔画"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "汉字的笔画类型（横、竖、撇、捺、点、折、钩等）"@zh .
+
+# ===== 1.2 词汇层 (Vocabulary Layer) =====
+
+hsk1:Word rdf:type owl:Class ;
+    rdfs:label "词"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "HSK1 词汇表，约 297 个词"@zh .
+
+hsk1:Noun rdf:type owl:Class ;
+    rdfs:label "名词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Verb rdf:type owl:Class ;
+    rdfs:label "动词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Adjective rdf:type owl:Class ;
+    rdfs:label "形容词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Pronoun rdf:type owl:Class ;
+    rdfs:label "代词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Numeral rdf:type owl:Class ;
+    rdfs:label "数词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:MeasureWord rdf:type owl:Class ;
+    rdfs:label "量词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Adverb rdf:type owl:Class ;
+    rdfs:label "副词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Preposition rdf:type owl:Class ;
+    rdfs:label "介词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Conjunction rdf:type owl:Class ;
+    rdfs:label "连词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Auxiliary rdf:type owl:Class ;
+    rdfs:label "助词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Interjection rdf:type owl:Class ;
+    rdfs:label "叹词"@zh ;
+    rdfs:subClassOf hsk1:Word .
+
+hsk1:Phrase rdf:type owl:Class ;
+    rdfs:label "短语"@zh ;
+    rdfs:subClassOf hsk1:Word ;
+    rdfs:comment "由两个或以上词组成的固定短语（如'你好'、'打电话'）"@zh .
+
+# ===== 1.3 语法层 (Grammar Layer) =====
+
+hsk1:GrammarPoint rdf:type owl:Class ;
+    rdfs:label "语法点"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "HSK1 语法点，共 119 个"@zh .
+
+hsk1:Morpheme rdf:type owl:Class ;
+    rdfs:label "语素"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint ;
+    rdfs:comment "语素类（前缀、后缀）"@zh .
+
+hsk1:Particle rdf:type owl:Class ;
+    rdfs:label "助词类"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint .
+
+hsk1:PhraseStructure rdf:type owl:Class ;
+    rdfs:label "短语结构"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint ;
+    rdfs:comment "短语结构类型（联合、偏正、动宾、主谓等）"@zh .
+
+hsk1:SentenceComponent rdf:type owl:Class ;
+    rdfs:label "句子成分"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint ;
+    rdfs:comment "主语、谓语、宾语、定语、状语、补语"@zh .
+
+hsk1:SentencePattern rdf:type owl:Class ;
+    rdfs:label "句型"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint ;
+    rdfs:comment "主谓句、非主谓句"@zh .
+
+hsk1:SentenceType rdf:type owl:Class ;
+    rdfs:label "句类"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint ;
+    rdfs:comment "陈述句、疑问句、祈使句、感叹句"@zh .
+
+hsk1:SpecialPattern rdf:type owl:Class ;
+    rdfs:label "特殊句型"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint ;
+    rdfs:comment "是字句、有字句、存现句、连动句、双宾语句"@zh .
+
+hsk1:CompoundSentence rdf:type owl:Class ;
+    rdfs:label "复句"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint .
+
+hsk1:Aspect rdf:type owl:Class ;
+    rdfs:label "动作的态"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint ;
+    rdfs:comment "完成态、变化态、进行态"@zh .
+
+hsk1:SpecialExpression rdf:type owl:Class ;
+    rdfs:label "特殊表达法"@zh ;
+    rdfs:subClassOf hsk1:GrammarPoint ;
+    rdfs:comment "数的表达、时间表达、钱数表达"@zh .
+
+# ===== 1.4 应用层 (Application Layer) =====
+
+hsk1:Topic rdf:type owl:Class ;
+    rdfs:label "话题"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "16 个一级话题（个人信息、事件信息、交往等）"@zh .
+
+hsk1:SubTopic rdf:type owl:Class ;
+    rdfs:label "子话题"@zh ;
+    rdfs:subClassOf hsk1:Topic ;
+    rdfs:comment "二级话题（如个人信息下的姓名、国籍、年龄等）"@zh .
+
+hsk1:Task rdf:type owl:Class ;
+    rdfs:label "任务"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "15 个 HSK1 核心交际任务"@zh .
+
+hsk1:Scenario rdf:type owl:Class ;
+    rdfs:label "场景"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "交际场景（聚会、餐厅、商店、医院等）"@zh .
+
+# ===== 1.5 能力层 (Skill Layer) =====
+
+hsk1:Skill rdf:type owl:Class ;
+    rdfs:label "语言能力"@zh ;
+    rdfs:subClassOf hsk1:HSKKnowledgePoint ;
+    rdfs:comment "听、说、读、写四种核心语言能力"@zh .
+
+hsk1:Listening rdf:type owl:Class ;
+    rdfs:label "听"@zh ;
+    rdfs:subClassOf hsk1:Skill .
+
+hsk1:Speaking rdf:type owl:Class ;
+    rdfs:label "说"@zh ;
+    rdfs:subClassOf hsk1:Skill .
+
+hsk1:Reading rdf:type owl:Class ;
+    rdfs:label "读"@zh ;
+    rdfs:subClassOf hsk1:Skill .
+
+hsk1:Writing rdf:type owl:Class ;
+    rdfs:label "写"@zh ;
+    rdfs:subClassOf hsk1:Skill .
+
+#####################################################################
+# 2. 数据类型属性 (Datatype Properties)
+#####################################################################
+
+hsk1:hasName rdf:type owl:DatatypeProperty ;
+    rdfs:label "中文名"@zh ;
+    rdfs:comment "知识点或资源的名称"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:string .
+
+hsk1:hasPinyin rdf:type owl:DatatypeProperty ;
+    rdfs:label "拼音"@zh ;
+    rdfs:comment "拼音标注（含声调）"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:string .
+
+hsk1:hasDefinition rdf:type owl:DatatypeProperty ;
+    rdfs:label "释义"@zh ;
+    rdfs:comment "知识点的中文释义"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:string .
+
+hsk1:hasEnglishDefinition rdf:type owl:DatatypeProperty ;
+    rdfs:label "英文释义"@zh ;
+    rdfs:comment "知识点的英文翻译"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:string .
+
+hsk1:hasExample rdf:type owl:DatatypeProperty ;
+    rdfs:label "例句"@zh ;
+    rdfs:comment "知识点对应的例句"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:string .
+
+hsk1:hasHSKLevel rdf:type owl:DatatypeProperty ;
+    rdfs:label "HSK 等级"@zh ;
+    rdfs:comment "所属 HSK 等级（1-9）"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:integer .
+
+hsk1:hasDifficulty rdf:type owl:DatatypeProperty ;
+    rdfs:label "难度"@zh ;
+    rdfs:comment "1-5 级难度评估"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:integer .
+
+hsk1:hasProficiencyLevel rdf:type owl:DatatypeProperty ;
+    rdfs:label "掌握度等级"@zh ;
+    rdfs:comment "5 级掌握度（L0-L4），用于评估学习者对该知识点的掌握程度"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:string .
+
+hsk1:isInSyllabus rdf:type owl:DatatypeProperty ;
+    rdfs:label "是否在考纲内"@zh ;
+    rdfs:comment "标识知识点是否在 HSK 官方考纲内"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range xsd:boolean .
+
+hsk1:hasRadical rdf:type owl:DatatypeProperty ;
+    rdfs:label "部首"@zh ;
+    rdfs:comment "汉字的部首"@zh ;
+    rdfs:domain hsk1:Character ;
+    rdfs:range xsd:string .
+
+hsk1:hasStrokeCount rdf:type owl:DatatypeProperty ;
+    rdfs:label "笔画数"@zh ;
+    rdfs:comment "汉字的总笔画数"@zh ;
+    rdfs:domain hsk1:Character ;
+    rdfs:range xsd:integer .
+
+hsk1:hasPartOfSpeech rdf:type owl:DatatypeProperty ;
+    rdfs:label "词性"@zh ;
+    rdfs:comment "词的语法类别（名、动、形、代、数、量、副、介、连、助、叹）"@zh ;
+    rdfs:domain hsk1:Word ;
+    rdfs:range xsd:string .
+
+hsk1:hasSubTopics rdf:type owl:DatatypeProperty ;
+    rdfs:label "子话题"@zh ;
+    rdfs:comment "话题下的子话题列表"@zh ;
+    rdfs:domain hsk1:Topic ;
+    rdfs:range xsd:string .
+
+#####################################################################
+# 3. 对象属性 (Object Properties) - 关系
+#####################################################################
+
+# 3.1 依赖关系 (Dependency)
+hsk1:requires rdf:type owl:ObjectProperty ;
+    rdfs:label "前置依赖"@zh ;
+    rdfs:comment "学习该知识点前必须先掌握的前置知识点"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range hsk1:HSKKnowledgePoint ;
+    rdfs:isTransitive true ;
+    owl:propertyChainAxiom () .
+
+# 3.2 组成关系 (Composition)
+hsk1:composedOf rdf:type owl:ObjectProperty ;
+    rdfs:label "由...组成"@zh ;
+    rdfs:comment "复杂知识点由哪些基础知识点组成"@zh ;
+    rdfs:domain hsk1:Word ;
+    rdfs:range hsk1:Character ;
+    rdfs:isTransitive false .
+
+# 3.3 使能关系 (Enablement)
+hsk1:enables rdf:type owl:ObjectProperty ;
+    rdfs:label "使能"@zh ;
+    rdfs:comment "掌握该知识点后能完成的更高层任务"@zh ;
+    rdfs:domain hsk1:Topic ;
+    rdfs:range hsk1:Task ;
+    rdfs:isTransitive true .
+
+# 3.4 关联关系 (Relatedness)
+hsk1:relatesTo rdf:type owl:ObjectProperty ;
+    rdfs:label "相关"@zh ;
+    rdfs:comment "知识点之间的关联（如同话题）"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range hsk1:HSKKnowledgePoint ;
+    rdfs:isSymmetric true .
+
+# 3.5 包含关系 (Containment)
+hsk1:hasSubTopic rdf:type owl:ObjectProperty ;
+    rdfs:label "包含子话题"@zh ;
+    rdfs:comment "话题包含的子话题"@zh ;
+    rdfs:domain hsk1:Topic ;
+    rdfs:range hsk1:SubTopic .
+
+hsk1:partOf rdf:type owl:ObjectProperty ;
+    rdfs:label "属于"@zh ;
+    rdfs:comment "子话题属于的话题"@zh ;
+    rdfs:domain hsk1:SubTopic ;
+    rdfs:range hsk1:Topic ;
+    rdfs:inverseOf hsk1:hasSubTopic .
+
+# 3.6 能力目标关系
+hsk1:hasSkillTarget rdf:type owl:ObjectProperty ;
+    rdfs:label "技能目标"@zh ;
+    rdfs:comment "该知识点对应的听/说/读/写技能目标"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range hsk1:Skill .
+
+hsk1:targetedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "被任务针对"@zh ;
+    rdfs:comment "知识点被哪些任务所针对"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range hsk1:Task ;
+    rdfs:inverseOf hsk1:hasSkillTarget .
+
+# 3.7 教学法关系
+hsk1:introducedIn rdf:type owl:ObjectProperty ;
+    rdfs:label "在...中引入"@zh ;
+    rdfs:comment "该知识点在哪个教材/课程任务中首次引入"@zh ;
+    rdfs:domain hsk1:HSKKnowledgePoint ;
+    rdfs:range hsk1:Task .
+
+#####################################################################
+# 4. 掌握度量表 (Proficiency Level)
+#####################################################################
+
+hsk1:ProficiencyLevel0 rdf:type hsk1:ProficiencyLevel ;
+    hsk1:hasLevel "L0" ;
+    hsk1:hasName "未接触"@zh ;
+    rdfs:comment "学习者从未接触过该知识点"@zh .
+
+hsk1:ProficiencyLevel1 rdf:type hsk1:ProficiencyLevel ;
+    hsk1:hasLevel "L1" ;
+    hsk1:hasName "识别"@zh ;
+    rdfs:comment "学习者看到或听到能认出来"@zh .
+
+hsk1:ProficiencyLevel2 rdf:type hsk1:ProficiencyLevel ;
+    hsk1:hasLevel "L2" ;
+    hsk1:hasName "理解"@zh ;
+    rdfs:comment "学习者知道意思，能解释"@zh .
+
+hsk1:ProficiencyLevel3 rdf:type hsk1:ProficiencyLevel ;
+    hsk1:hasLevel "L3" ;
+    hsk1:hasName "运用"@zh ;
+    rdfs:comment "学习者能在引导下正确使用"@zh .
+
+hsk1:ProficiencyLevel4 rdf:type hsk1:ProficiencyLevel ;
+    hsk1:hasLevel "L4" ;
+    hsk1:hasName "流利"@zh ;
+    rdfs:comment "学习者能主动、即时、准确使用"@zh .
+
+#####################################################################
+# 5. 限制 (Restrictions) 和公理 (Axioms)
+#####################################################################
+
+# 汉字必须属于 HSK 1-6 级（不能超过 HSK6 算高级）
+hsk1:Character rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty hsk1:hasHSKLevel ;
+    owl:allValuesFrom [ rdf:type rdfs:Datatype ; owl:onDatatype xsd:integer ; owl:withRestrictions ( [ xsd:minInclusive "1"^^xsd:integer ] [ xsd:maxInclusive "6"^^xsd:integer ] ) ]
+] .
+
+# 词的难度必须在 1-5 范围内
+hsk1:Word rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty hsk1:hasDifficulty ;
+    owl:allValuesFrom [ rdf:type rdfs:Datatype ; owl:onDatatype xsd:integer ; owl:withRestrictions ( [ xsd:minInclusive "1"^^xsd:integer ] [ xsd:maxInclusive "5"^^xsd:integer ] ) ]
+] .
+
+# 词的 HSK 等级必须在 1-9 范围内
+hsk1:Word rdfs:subClassOf [
+    rdf:type owl:Restriction ;
+    owl:onProperty hsk1:hasHSKLevel ;
+    owl:allValuesFrom [ rdf:type rdfs:Datatype ; owl:onDatatype xsd:integer ; owl:withRestrictions ( [ xsd:minInclusive "1"^^xsd:integer ] [ xsd:maxInclusive "9"^^xsd:integer ] ) ]
+] .
+
+# 关系是反对称的
+hsk1:requires rdf:type owl:AsymmetricProperty .
+hsk1:composedOf rdf:type owl:AsymmetricProperty .
+hsk1:enables rdf:type owl:AsymmetricProperty .
+
+#####################################################################
+# 6. SKOS 词汇概念 (SKOS Concepts for vocabulary control)
+#####################################################################
+
+hsk1:HSK1VocabularyConceptScheme rdf:type skos:ConceptScheme ;
+    rdfs:label "HSK1 词汇概念集"@zh ;
+    rdfs:comment "HSK1 词汇表对应的 SKOS 概念集"@zh ;
+    skos:hasTopConcept hsk1:PersonalInfoConcept, hsk1:EventInfoConcept, hsk1:SocialInteractionConcept, hsk1:FoodConcept, hsk1:TransportationConcept, hsk1:ShoppingConcept, hsk1:HealthConcept, hsk1:EnvironmentConcept, hsk1:LearningConcept .
+
+hsk1:PersonalInfoConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "个人信息"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme ;
+    skos:narrower hsk1:IdentityConcept, hsk1:FamilyConcept, hsk1:NationalityConcept, hsk1:AgeConcept .
+
+hsk1:EventInfoConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "事件信息"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme ;
+    skos:narrower hsk1:TimeConcept, hsk1:NumberConcept, hsk1:LocationConcept .
+
+hsk1:SocialInteractionConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "日常交往"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme .
+
+hsk1:FoodConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "饮食"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme .
+
+hsk1:TransportationConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "交通"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme .
+
+hsk1:ShoppingConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "购物"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme .
+
+hsk1:HealthConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "健康"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme .
+
+hsk1:EnvironmentConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "环境"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme .
+
+hsk1:LearningConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "学习"@zh ;
+    skos:broader hsk1:HSK1VocabularyConceptScheme .
+
+hsk1:IdentityConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "身份"@zh ;
+    skos:broader hsk1:PersonalInfoConcept .
+
+hsk1:FamilyConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "家庭"@zh ;
+    skos:broader hsk1:PersonalInfoConcept .
+
+hsk1:NationalityConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "国籍"@zh ;
+    skos:broader hsk1:PersonalInfoConcept .
+
+hsk1:AgeConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "年龄"@zh ;
+    skos:broader hsk1:PersonalInfoConcept .
+
+hsk1:TimeConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "时间"@zh ;
+    skos:broader hsk1:EventInfoConcept .
+
+hsk1:NumberConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "数字"@zh ;
+    skos:broader hsk1:EventInfoConcept .
+
+hsk1:LocationConcept rdf:type skos:Concept ;
+    skos:inScheme hsk1:HSK1VocabularyConceptScheme ;
+    skos:prefLabel "方位"@zh ;
+    skos:broader hsk1:EventInfoConcept .
+
+#####################################################################
+# 7. 评估规则 (SWRL-style rules in comments)
+#####################################################################
+
+# 规则1: HSK1 达标基线
+# IF   word has ProficiencyLevel >= L3 (Speaking)
+# AND  word has ProficiencyLevel >= L2 (Reading)
+# AND  word has ProficiencyLevel >= L1 (Listening)
+# THEN word is in HSK1 Mastery Set
+
+# 规则2: 任务能力
+# IF   task requires all words in topic T (with L3)
+# AND  grammar points are mastered
+# THEN learner can complete task
+
+# 规则3: 课程覆盖
+# IF   task T is in course C
+# AND  topic has word W
+# THEN topic is covered by course C
+
+#####################################################################
+# 8. 元数据
+#####################################################################
+
+<http://hsk1.org/ontology> dcterms:rights "MIT License - Open Source" ;
+    rdfs:comment "本本体模型可被任何 HSK 教学系统、学习平台、教育研究者自由使用、修改和扩展"@zh .

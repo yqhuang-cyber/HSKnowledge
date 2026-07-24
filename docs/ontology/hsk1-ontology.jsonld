@@ -1,0 +1,441 @@
+{
+  "@context": {
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "hsk1": "http://hsk1.org/ontology#",
+    "name": "rdfs:label",
+    "comment": "rdfs:comment",
+    "subClassOf": "rdfs:subClassOf",
+    "domain": "rdfs:domain",
+    "range": "rdfs:range",
+    "type": "@type",
+    "label_zh": "rdfs:label@zh",
+    "transitive": "rdfs:isTransitive",
+    "symmetric": "rdfs:isSymmetric"
+  },
+  "@graph": [
+    {
+      "@id": "hsk1:",
+      "@type": "owl:Ontology",
+      "name_zh": "HSK1 知识图谱本体",
+      "comment_zh": "HSK1 级中文学习知识图谱的形式化本体模型"
+    },
+    {
+      "@id": "hsk1:HSKKnowledgePoint",
+      "@type": "owl:Class",
+      "name_zh": "HSK知识点",
+      "comment_zh": "顶级抽象类"
+    },
+    {
+      "@id": "hsk1:Phoneme",
+      "@type": "owl:Class",
+      "name_zh": "音素",
+      "subClassOf": "hsk1:HSKKnowledgePoint"
+    },
+    {
+      "@id": "hsk1:Initial",
+      "@type": "owl:Class",
+      "name_zh": "声母",
+      "subClassOf": "hsk1:Phoneme",
+      "comment_zh": "21个HSK声母"
+    },
+    {
+      "@id": "hsk1:Final",
+      "@type": "owl:Class",
+      "name_zh": "韵母",
+      "subClassOf": "hsk1:Phoneme",
+      "comment_zh": "39个HSK韵母"
+    },
+    {
+      "@id": "hsk1:Tone",
+      "@type": "owl:Class",
+      "name_zh": "声调",
+      "subClassOf": "hsk1:Phoneme",
+      "comment_zh": "4个声调+变调"
+    },
+    {
+      "@id": "hsk1:Character",
+      "@type": "owl:Class",
+      "name_zh": "汉字",
+      "subClassOf": "hsk1:HSKKnowledgePoint",
+      "comment_zh": "约250个HSK1字符"
+    },
+    {
+      "@id": "hsk1:Radical",
+      "@type": "owl:Class",
+      "name_zh": "部首",
+      "subClassOf": "hsk1:HSKKnowledgePoint"
+    },
+    {
+      "@id": "hsk1:Stroke",
+      "@type": "owl:Class",
+      "name_zh": "笔画",
+      "subClassOf": "hsk1:HSKKnowledgePoint"
+    },
+    {
+      "@id": "hsk1:Word",
+      "@type": "owl:Class",
+      "name_zh": "词",
+      "subClassOf": "hsk1:HSKKnowledgePoint",
+      "comment_zh": "约297个HSK1词"
+    },
+    {
+      "@id": "hsk1:Noun",
+      "@type": "owl:Class",
+      "name_zh": "名词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Verb",
+      "@type": "owl:Class",
+      "name_zh": "动词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Adjective",
+      "@type": "owl:Class",
+      "name_zh": "形容词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Pronoun",
+      "@type": "owl:Class",
+      "name_zh": "代词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Numeral",
+      "@type": "owl:Class",
+      "name_zh": "数词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:MeasureWord",
+      "@type": "owl:Class",
+      "name_zh": "量词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Adverb",
+      "@type": "owl:Class",
+      "name_zh": "副词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Preposition",
+      "@type": "owl:Class",
+      "name_zh": "介词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Conjunction",
+      "@type": "owl:Class",
+      "name_zh": "连词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Auxiliary",
+      "@type": "owl:Class",
+      "name_zh": "助词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Interjection",
+      "@type": "owl:Class",
+      "name_zh": "叹词",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:Phrase",
+      "@type": "owl:Class",
+      "name_zh": "短语",
+      "subClassOf": "hsk1:Word"
+    },
+    {
+      "@id": "hsk1:GrammarPoint",
+      "@type": "owl:Class",
+      "name_zh": "语法点",
+      "subClassOf": "hsk1:HSKKnowledgePoint"
+    },
+    {
+      "@id": "hsk1:Morpheme",
+      "@type": "owl:Class",
+      "name_zh": "语素",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:Particle",
+      "@type": "owl:Class",
+      "name_zh": "助词类",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:PhraseStructure",
+      "@type": "owl:Class",
+      "name_zh": "短语结构",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:SentenceComponent",
+      "@type": "owl:Class",
+      "name_zh": "句子成分",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:SentencePattern",
+      "@type": "owl:Class",
+      "name_zh": "句型",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:SentenceType",
+      "@type": "owl:Class",
+      "name_zh": "句类",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:SpecialPattern",
+      "@type": "owl:Class",
+      "name_zh": "特殊句型",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:CompoundSentence",
+      "@type": "owl:Class",
+      "name_zh": "复句",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:Aspect",
+      "@type": "owl:Class",
+      "name_zh": "动作的态",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:SpecialExpression",
+      "@type": "owl:Class",
+      "name_zh": "特殊表达法",
+      "subClassOf": "hsk1:GrammarPoint"
+    },
+    {
+      "@id": "hsk1:Topic",
+      "@type": "owl:Class",
+      "name_zh": "话题",
+      "subClassOf": "hsk1:HSKKnowledgePoint",
+      "comment_zh": "16个一级话题"
+    },
+    {
+      "@id": "hsk1:SubTopic",
+      "@type": "owl:Class",
+      "name_zh": "子话题",
+      "subClassOf": "hsk1:Topic"
+    },
+    {
+      "@id": "hsk1:Task",
+      "@type": "owl:Class",
+      "name_zh": "任务",
+      "subClassOf": "hsk1:HSKKnowledgePoint",
+      "comment_zh": "15个核心任务"
+    },
+    {
+      "@id": "hsk1:Scenario",
+      "@type": "owl:Class",
+      "name_zh": "场景",
+      "subClassOf": "hsk1:HSKKnowledgePoint"
+    },
+    {
+      "@id": "hsk1:Skill",
+      "@type": "owl:Class",
+      "name_zh": "语言能力",
+      "subClassOf": "hsk1:HSKKnowledgePoint"
+    },
+    {
+      "@id": "hsk1:Listening",
+      "@type": "owl:Class",
+      "name_zh": "听",
+      "subClassOf": "hsk1:Skill"
+    },
+    {
+      "@id": "hsk1:Speaking",
+      "@type": "owl:Class",
+      "name_zh": "说",
+      "subClassOf": "hsk1:Skill"
+    },
+    {
+      "@id": "hsk1:Reading",
+      "@type": "owl:Class",
+      "name_zh": "读",
+      "subClassOf": "hsk1:Skill"
+    },
+    {
+      "@id": "hsk1:Writing",
+      "@type": "owl:Class",
+      "name_zh": "写",
+      "subClassOf": "hsk1:Skill"
+    },
+    {
+      "@id": "hsk1:requires",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "前置依赖",
+      "comment_zh": "学习该知识点前必须先掌握的前置知识点",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "hsk1:HSKKnowledgePoint",
+      "transitive": true
+    },
+    {
+      "@id": "hsk1:composedOf",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "由...组成",
+      "comment_zh": "复杂知识点由哪些基础知识点组成",
+      "domain": "hsk1:Word",
+      "range": "hsk1:Character"
+    },
+    {
+      "@id": "hsk1:enables",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "使能",
+      "comment_zh": "掌握该知识点后能完成的更高层任务",
+      "domain": "hsk1:Topic",
+      "range": "hsk1:Task",
+      "transitive": true
+    },
+    {
+      "@id": "hsk1:relatesTo",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "相关",
+      "comment_zh": "知识点之间的关联",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "hsk1:HSKKnowledgePoint",
+      "symmetric": true
+    },
+    {
+      "@id": "hsk1:hasSubTopic",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "包含子话题",
+      "domain": "hsk1:Topic",
+      "range": "hsk1:SubTopic"
+    },
+    {
+      "@id": "hsk1:partOf",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "属于",
+      "domain": "hsk1:SubTopic",
+      "range": "hsk1:Topic"
+    },
+    {
+      "@id": "hsk1:hasSkillTarget",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "技能目标",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "hsk1:Skill"
+    },
+    {
+      "@id": "hsk1:targetedBy",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "被任务针对",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "hsk1:Task"
+    },
+    {
+      "@id": "hsk1:introducedIn",
+      "@type": "owl:ObjectProperty",
+      "name_zh": "在...中引入",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "hsk1:Task"
+    },
+    {
+      "@id": "hsk1:hasName",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "中文名",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:string"
+    },
+    {
+      "@id": "hsk1:hasPinyin",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "拼音",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:string"
+    },
+    {
+      "@id": "hsk1:hasDefinition",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "释义",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:string"
+    },
+    {
+      "@id": "hsk1:hasEnglishDefinition",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "英文释义",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:string"
+    },
+    {
+      "@id": "hsk1:hasExample",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "例句",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:string"
+    },
+    {
+      "@id": "hsk1:hasHSKLevel",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "HSK等级",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:integer"
+    },
+    {
+      "@id": "hsk1:hasDifficulty",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "难度",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:integer"
+    },
+    {
+      "@id": "hsk1:hasProficiencyLevel",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "掌握度等级",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:string"
+    },
+    {
+      "@id": "hsk1:isInSyllabus",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "是否在考纲内",
+      "domain": "hsk1:HSKKnowledgePoint",
+      "range": "xsd:boolean"
+    },
+    {
+      "@id": "hsk1:hasRadical",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "部首",
+      "domain": "hsk1:Character",
+      "range": "xsd:string"
+    },
+    {
+      "@id": "hsk1:hasStrokeCount",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "笔画数",
+      "domain": "hsk1:Character",
+      "range": "xsd:integer"
+    },
+    {
+      "@id": "hsk1:hasPartOfSpeech",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "词性",
+      "domain": "hsk1:Word",
+      "range": "xsd:string"
+    },
+    {
+      "@id": "hsk1:hasSubTopics",
+      "@type": "owl:DatatypeProperty",
+      "name_zh": "子话题",
+      "domain": "hsk1:Topic",
+      "range": "xsd:string"
+    }
+  ]
+}
