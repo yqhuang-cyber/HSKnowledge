@@ -1,14 +1,86 @@
-# HSK1 知识图谱 · 教师门户
+# HSK1 知识系统（教师门户 + 检索知识库）
 
-面向 HSK1 教师的本地知识工具：用可视化方式查看**词汇、汉字、语法、话题、任务**之间的关系，并对照 **2026 实施版考纲** 与 **Kai HSK1 课程** 的覆盖情况。
-
-同一套数据也支撑 **本地检索知识库**（`kb-service`）：给课堂陪练 / 大模型做知识点召回，可对接火山 RealtimeAPI 的 **`ChatRAGText`**（关键词 + 本地向量混合检索）。
+本仓库（[HSKnowledge](https://github.com/yqhuang-cyber/HSKnowledge)）是一套 **HSK1 本地知识系统**：同一份考纲 / 课程知识，拆成两个可独立启动的服务——给人看的教师门户，和给大模型用的检索 API。
 
 > 数据版本：**HSK1 知识图谱 v2.1**（约 719 个知识点、941 条关系；检索侧约 718 个知识块）
 
 ---
 
-## 这个门户能帮你做什么？
+## 系统里有什么？
+
+| 组成部分 | 是什么 | 地址 / 产物 |
+|----------|--------|-------------|
+| **教师门户** | Vue 网页：总览、图谱、词汇 / 语法 / 汉字 / 话题等 | `http://localhost:5173` |
+| **检索服务（RAG）** | HTTP API：按学生发言召回相关知识点，可对接火山 `ChatRAGText` | `http://127.0.0.1:8787` |
+| **原始数据** | 图谱、教案分类、本体 | `public/*.json` / `ontology.jsonld` |
+| **检索产物** | 知识块 + 本地向量（脚本生成） | `kb/chunks.jsonl`、`kb/embeddings.f32` |
+| **本体文档** | 类 / 关系说明与复用模版 | `docs/ontology/` |
+| **对接文档** | 检索 API 与大模型接入说明 | `docs/kb/retrieve-for-llm.md` |
+
+```
+                    public/（kg + teacher + ontology）
+                              │
+              ┌───────────────┴───────────────┐
+              ▼                               ▼
+     教师门户（Vite / Vue）            scripts/build-chunks
+     npm run dev → :5173              scripts/build-embeddings
+     给人看图谱与清单                         │
+                                              ▼
+                                         kb/ + kb-service
+                                      npm start → :8787
+                                   给程序 / LLM 做检索
+```
+
+两套服务 **互不依赖**：只备课开门户即可；只接陪练 / Realtime 开检索即可；需要时两个一起开。
+
+---
+
+## 两套服务怎么启动？
+
+前提：安装 [Node.js](https://nodejs.org/)（建议 18+）。进入本仓库目录（若克隆后是仓库根目录，则已在此；若在上级目录则 `cd hsk-portal`）：
+
+```bash
+npm install
+```
+
+### 1）教师门户（给人看）
+
+```bash
+npm run dev
+```
+
+浏览器打开 **http://localhost:5173/**  
+不用时在终端按 `Ctrl + C`。
+
+### 2）检索 / RAG 服务（给大模型）
+
+仓库里一般已带好 `kb/chunks.jsonl` 与 `kb/embeddings.f32`。改过 `public/` 数据后需重跑构建：
+
+```bash
+npm run build:chunks
+pip3 install --user -r kb-service/requirements.txt   # 首次 / 向量相关
+export HF_ENDPOINT=https://hf-mirror.com             # 国内拉模型可选
+npm run build:embeddings                             # 可选；没有则 hybrid 降级为关键词
+cd kb-service && npm start
+```
+
+- 根地址说明：http://127.0.0.1:8787/（这是 API，不是网页）  
+- 健康检查：http://127.0.0.1:8787/health  
+- 状态：http://127.0.0.1:8787/stats  
+
+默认检索模式 **`hybrid`**（关键词 + 本地向量 `BAAI/bge-small-zh-v1.5`）。
+
+```bash
+curl -s -X POST http://127.0.0.1:8787/retrieve \
+  -H 'content-type: application/json' \
+  -d '{"query":"点餐","top_k":5,"mode":"hybrid","format":"chat_rag_text"}'
+```
+
+完整对接（含火山 Realtime **外部 RAG / ChatRAGText**）：[docs/kb/retrieve-for-llm.md](./docs/kb/retrieve-for-llm.md)
+
+---
+
+## 教师门户能做什么？
 
 | 你想了解的 | 去哪个标签页 |
 |------------|--------------|
@@ -22,81 +94,52 @@
 | Kai 30 Missions 对应哪些主题 | **课程映射** |
 | 知识是按什么「类」组织的（本体） | **本体模型** |
 
----
+### 图谱怎么用？
 
-## 怎么打开（教师 / 非技术同事）
+1. 打开 **图谱可视化**。上方彩色标签可筛选：任务 / 话题 / 词汇 / 汉字 / 语法。  
+2. **拖拽**节点、**滚轮**缩放；**点击**节点打开右侧「本体检视」。  
+3. 颜色：红任务 · 橙话题 · 蓝词汇 · 绿汉字 · 紫语法；灰多为考纲外补充。
 
-电脑上需要先安装 [Node.js](https://nodejs.org/)（建议 LTS 版本）。然后：
-
-1. 打开终端（Mac 可用「终端」App）
-2. 进入本项目目录，例如：
-
-```bash
-cd hsk-portal
-```
-
-3. 第一次使用，安装依赖（只需做一次）：
-
-```bash
-npm install
-```
-
-4. 启动本地预览：
-
-```bash
-npm run dev
-```
-
-5. 终端里会出现一个本地地址（通常是 `http://localhost:5173`）。用浏览器打开即可。
-
-不用时在终端按 `Ctrl + C` 结束即可。
-
-> 说明：数据都在本机 `public/` 文件夹里，**不会上传你的备课内容**；打开后也无需登录。
+数据在本机 `public/`，**不上传备课内容**，无需登录。
 
 ---
 
-## 图谱可视化：怎么用？
+## 检索服务能力一览
 
-1. 打开 **图谱可视化** 标签页。  
-2. 上方彩色小标签可筛选：任务 / 话题 / 词汇 / 汉字 / 语法。  
-3. **拖拽**节点、**滚轮**缩放。  
-4. **点击**某个节点：右侧「本体检视」会显示：
-   - 它属于哪一类（如：词汇、汉字）
-   - 类的说明与上级分类路径
-   - 拼音、词性、掌握度、是否考纲内等属性
-   - 和其他知识点的关系（可再点邻居继续查看）
-5. 点击画布空白处，或点侧栏右上角 **×**，可关闭详情。
+| 接口 | 说明 |
+|------|------|
+| `GET /` | 服务说明与可用接口列表 |
+| `GET /health` | 健康检查 |
+| `GET /stats` | 知识块数量、向量是否加载 |
+| `POST /retrieve` | 检索；`mode`: `keyword` / `vector` / `hybrid`（默认） |
+| `format: "chat_rag_text"` | 多返回 `rag_text`，可直接作火山 `ChatRAGText` |
 
-颜色大致含义：
-
-- 红：任务 · 橙：话题 · 蓝：词汇 · 绿：汉字 · 紫：语法  
-- 灰色节点：考纲外补充（如课程用词、文化词）
+场景：课堂对话 / 陪练——召回相关知识点作参考，**不强行卡模型超纲**。
 
 ---
 
-## 项目里有什么？（给想改数据 / 开发的人）
+## 目录结构
 
 ```
-hsk-portal/
-├── public/                      # 静态数据（改完刷新页面即可）
-│   ├── kg_data.json             # 知识图谱：节点 + 关系
-│   ├── teacher_data.json        # 教案向分类（词汇/语法/话题等）
-│   └── ontology.jsonld          # 本体模型（类、属性定义）
-├── kb/                          # 检索产物（由脚本生成，勿手改）
-│   ├── chunks.jsonl             # 知识块
-│   ├── embeddings.f32           # 向量矩阵（二期）
-│   └── embeddings.meta.json
-├── kb-service/                  # 本地检索 API（默认 hybrid）
-│   ├── requirements.txt         # Python：fastembed（向量）
-│   └── src/                     # Node 服务 + Python embed worker
+├── public/                 # 原始静态数据（门户直接读）
+│   ├── kg_data.json
+│   ├── teacher_data.json
+│   └── ontology.jsonld
+├── kb/                     # 检索产物（脚本生成）
+│   ├── chunks.jsonl
+│   ├── embeddings.f32
+│   └── *.meta.json
+├── kb-service/             # 检索 API（:8787）
+│   ├── requirements.txt    # Python fastembed
+│   └── src/
 ├── scripts/
-│   ├── build-chunks.mjs         # public → chunks
-│   └── build-embeddings.py      # chunks → embeddings.f32
-├── src/                         # 教师门户前端
+│   ├── build-chunks.mjs
+│   └── build-embeddings.py
+├── src/                    # 教师门户前端（:5173）
 ├── docs/
-│   ├── ontology/                # 本体说明 + 建模模版
-│   ├── kb/                      # 检索与大模型对接说明
-│   └── superpowers/             # 设计稿 / 实现计划
+│   ├── ontology/           # 本体说明与模版
+│   ├── kb/                 # 检索对接说明
+│   └── superpowers/        # 设计与实现计划
 ├── package.json
 └── vite.config.js
 ```
@@ -104,86 +147,38 @@ hsk-portal/
 常用命令：
 
 ```bash
-npm run dev              # 本地开发预览（教师门户）
-npm run build            # 打包到 dist/
+npm run dev              # 教师门户
+npm run build            # 打包门户到 dist/
 npm run preview          # 预览打包结果
-npm run build:chunks     # 从 public 数据生成 kb/chunks.jsonl
-npm run build:embeddings # 生成 kb/embeddings.f32（需 Python + fastembed）
-```
-
-技术栈：Vue 3 + Vite + vis-network；检索服务 Node（关键词 / 混合）+ Python `fastembed`（`BAAI/bge-small-zh-v1.5`）。
-
----
-
-## 知识库检索服务（给大模型用）
-
-教师门户负责**给人看**；`kb-service` 负责**给大模型检索**。
-
-### 启动步骤
-
-```bash
-# 1) 知识块（改完 public 数据后重跑）
-npm run build:chunks
-
-# 2) 向量（二期；口语/语义召回需要）
-pip3 install --user -r kb-service/requirements.txt
-export HF_ENDPOINT=https://hf-mirror.com   # 若 huggingface.co 超时
-npm run build:embeddings
-
-# 3) 检索服务
+npm run build:chunks     # public → kb/chunks.jsonl
+npm run build:embeddings # chunks → kb/embeddings.f32
 cd kb-service && npm start
-# → http://127.0.0.1:8787
 ```
 
-未生成 `embeddings.f32` 时服务仍可启动：`hybrid` 会降级为纯关键词。
-
-### 能力一览
-
-| 能力 | 说明 |
-|------|------|
-| `POST /retrieve` | 检索知识点；默认 **`mode=hybrid`**（关键词 + 向量融合） |
-| `mode` | `keyword` / `vector` / `hybrid` |
-| `format: "chat_rag_text"` | 响应多返回 `rag_text`，可直接作火山 **`ChatRAGText`** |
-| `GET /health` · `GET /stats` | 健康检查；`stats` 含向量是否已加载 |
-
-示例：
-
-```bash
-curl -s -X POST http://127.0.0.1:8787/retrieve \
-  -H 'content-type: application/json' \
-  -d '{"query":"点餐","top_k":5,"mode":"hybrid","format":"chat_rag_text"}'
-```
-
-完整对接说明：[docs/kb/retrieve-for-llm.md](./docs/kb/retrieve-for-llm.md)  
-二期设计：[docs/superpowers/specs/2026-07-24-hsk1-retrieval-kb-phase2-vector-design.md](./docs/superpowers/specs/2026-07-24-hsk1-retrieval-kb-phase2-vector-design.md)
+技术栈：Vue 3 + Vite + vis-network；检索 Node + Python `fastembed`。
 
 ---
 
 ## 数据说明（简要）
 
-- **考纲内 / 考纲外补充**：是否严格属于 HSK1 2026 实施范围。  
-- **掌握度 L0–L4**：从「未接触」到「流利运用」；总览里会按词汇的「说」目标做统计。  
-- **话题课程覆盖**：已覆盖 / 浅覆盖 / 未覆盖，对应 Kai HSK1 课程是否训到该话题。  
-- **本体**：用统一的「类」和「关系」描述知识点（例如：词由汉字组成、话题关联词汇）。图谱侧栏就是用这套说法来解释你点中的节点。  
-  - 说明文档与建模模版见：[docs/ontology/](./docs/ontology/)（含 [ONTOLOGY.md](./docs/ontology/ONTOLOGY.md)、JSON-LD / OWL 模版）  
-  - 门户运行时加载：`public/ontology.jsonld`
+- **考纲内 / 考纲外补充**：是否属于 HSK1 2026 实施范围。  
+- **掌握度 L0–L4**：从「未接触」到「流利运用」。  
+- **话题课程覆盖**：已覆盖 / 浅覆盖 / 未覆盖（对照 Kai HSK1）。  
+- **本体**：统一的类与关系；说明见 [docs/ontology/](./docs/ontology/)。  
 
-更新数据时：替换 `public/` 下对应 JSON / JSON-LD 文件后刷新页面。注意节点 `id` 不要重复（例如不要出现两个相同的 `word-字`），否则图谱可能报错。
+更新数据：替换 `public/` 后刷新门户；若要同步检索，再跑 `build:chunks`（及可选 `build:embeddings`）并重启 `kb-service`。节点 `id` 勿重复。
 
-若要做 **HSK2 / HSK3 / 商务汉语** 等新本体：复制 `docs/ontology/`，按该目录 [README](./docs/ontology/README.md) 修改 namespace 与类即可。
+扩展到 HSK2 / HSK3 等：复制 `docs/ontology/`，按该目录 [README](./docs/ontology/README.md) 改 namespace 与类。
 
 ---
 
-## 仓库
+## 排错
 
-GitHub：https://github.com/yqhuang-cyber/HSKnowledge
-
-若使用中遇到页面打不开、数据加载失败等问题，请检查：
-
-1. 是否在 `hsk-portal` 目录下执行了 `npm install` / `npm run dev`  
-2. 浏览器控制台是否提示某个 `public/*.json` 找不到  
-3. Node.js 版本是否过旧（建议 18+）  
-4. 检索服务向量不可用：是否安装了 `kb-service/requirements.txt`、是否跑过 `npm run build:embeddings`（国内可设 `HF_ENDPOINT=https://hf-mirror.com`）
+1. **5173 打不开**：是否在本目录执行了 `npm install` / `npm run dev`？  
+2. **8787 打开是 JSON / 不是网页**：正常，那是 API；门户请用 5173。  
+3. **`{"error":"not found"}`**：访问了未实现的路径；试 `/`、`/health`、`/stats`，检索用 `POST /retrieve`。  
+4. **hybrid 效果差 / 降级关键词**：检查 `/stats` 里 `embeddings_loaded`；按上文安装 Python 依赖并 `npm run build:embeddings`。  
+5. Node 建议 18+。
 
 ---
 

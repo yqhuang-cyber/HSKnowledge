@@ -121,6 +121,23 @@ const server = createServer(async (req, res) => {
     return sendJson(res, 204, {})
   }
 
+  if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '')) {
+    return sendJson(res, 200, {
+      ok: true,
+      service: 'hsk-kb-service',
+      message: '这是检索 API，不是网页。请用下面接口，或看 docs/kb/retrieve-for-llm.md',
+      endpoints: {
+        'GET /health': '健康检查',
+        'GET /stats': '知识块 / 向量加载状态',
+        'POST /retrieve': '检索（默认 mode=hybrid；body: { query, top_k?, mode?, format? }）',
+      },
+      example_curl:
+        'curl -s -X POST http://127.0.0.1:8787/retrieve -H \'content-type: application/json\' -d \'{"query":"点餐","top_k":5,"format":"chat_rag_text"}\'',
+      chunks: chunks.length,
+      embeddings_loaded: Boolean(embeddings),
+    })
+  }
+
   if (req.method === 'GET' && url.pathname === '/health') {
     return sendJson(res, 200, { ok: true })
   }
