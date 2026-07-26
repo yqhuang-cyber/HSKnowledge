@@ -3,7 +3,8 @@
 一期能力：从图谱数据生成可检索知识块（chunks），提供本地 HTTP 检索，并把结果格式化为火山 RealtimeAPI **外部 RAG** 所需的 `ChatRAGText` 文本。
 
 **场景：** 课堂对话 / 陪练（深度：相关知识点召回，不强行卡超纲）  
-**完整方案：** [../superpowers/specs/2026-07-24-hsk1-retrieval-kb-for-llm-design.md](../superpowers/specs/2026-07-24-hsk1-retrieval-kb-for-llm-design.md)
+**给外挂 AI 开发者的完整 RAG 方案（含召回机制与向量化）：** [rag-implementation.md](./rag-implementation.md)  
+**设计原文：** [../superpowers/specs/2026-07-24-hsk1-retrieval-kb-for-llm-design.md](../superpowers/specs/2026-07-24-hsk1-retrieval-kb-for-llm-design.md)
 
 ---
 

@@ -15,7 +15,8 @@
 | **原始数据** | 图谱、教案分类、本体 | `public/*.json` / `ontology.jsonld` |
 | **检索产物** | 知识块 + 本地向量（脚本生成） | `kb/chunks.jsonl`、`kb/embeddings.f32` |
 | **本体文档** | 类 / 关系说明与复用模版 | `docs/ontology/` |
-| **对接文档** | 检索 API 与大模型接入说明 | `docs/kb/retrieve-for-llm.md` |
+| **对接文档** | 检索 API 速查 | `docs/kb/retrieve-for-llm.md` |
+| **RAG 实现方案** | 教学场景、召回机制、向量化、外挂对接（给 AI 开发者） | `docs/kb/rag-implementation.md` |
 
 ```
                     public/（kg + teacher + ontology）
@@ -32,6 +33,30 @@
 ```
 
 两套服务 **互不依赖**：只备课开门户即可；只接陪练 / Realtime 开检索即可；需要时两个一起开。
+
+---
+
+## 外挂 AI 看这里：我们的检索 / RAG 方案
+
+若你要做陪练、Realtime、或其它要「挂」本仓库知识的 AI 应用，请先读：
+
+**→ [docs/kb/rag-implementation.md](./docs/kb/rag-implementation.md)**（教学场景 + 召回机制 + 向量化 + 对接契约）
+
+### 方案要点（摘要）
+
+1. **场景**：课堂对话 / 口语陪练；召回相关 HSK1 知识点作**参考**，本阶段不强行卡模型是否超纲。  
+2. **分工**：本仓库只做 **检索（召回）**；**生成**在你们的应用或火山 Realtime 侧完成。  
+3. **召回是核心**：默认 **`hybrid` = 关键词 + 向量**。关键词擅长专名；向量擅长口语（如「点餐」→ 饮食场景）。两者融合，避免只靠字面命中跑偏。  
+4. **向量化包含在方案内**：离线用 `BAAI/bge-small-zh-v1.5` 把知识块写成 `kb/embeddings.f32`；在线只对当前问句做 embedding，再比余弦相似度。  
+5. **对接方式**：`POST /retrieve` 且 `format: "chat_rag_text"` → 取 `rag_text` → 作为火山 **`ChatRAGText`**（或拼进普通 Chat prompt）。平台**不会**自动来查我们的库，必须由你们的客户端推送。
+
+```
+学生发言 → 你们的 AI → POST :8787/retrieve → rag_text → ChatRAGText / prompt → 模型回复
+                 ↑
+           召回发生在本服务（hybrid）
+```
+
+接口字段速查：[docs/kb/retrieve-for-llm.md](./docs/kb/retrieve-for-llm.md)
 
 ---
 
@@ -114,7 +139,8 @@ curl -s -X POST http://127.0.0.1:8787/retrieve \
 | `POST /retrieve` | 检索；`mode`: `keyword` / `vector` / `hybrid`（默认） |
 | `format: "chat_rag_text"` | 多返回 `rag_text`，可直接作火山 `ChatRAGText` |
 
-场景：课堂对话 / 陪练——召回相关知识点作参考，**不强行卡模型超纲**。
+场景：课堂对话 / 陪练——召回相关知识点作参考，**不强行卡模型超纲**。  
+机制说明（召回 / 向量化 / 外挂契约）：[docs/kb/rag-implementation.md](./docs/kb/rag-implementation.md)
 
 ---
 
@@ -138,7 +164,9 @@ curl -s -X POST http://127.0.0.1:8787/retrieve \
 ├── src/                    # 教师门户前端（:5173）
 ├── docs/
 │   ├── ontology/           # 本体说明与模版
-│   ├── kb/                 # 检索对接说明
+│   ├── kb/                 # 检索对接说明 + RAG 实现方案
+│   │   ├── retrieve-for-llm.md
+│   │   └── rag-implementation.md
 │   └── superpowers/        # 设计与实现计划
 ├── package.json
 └── vite.config.js
