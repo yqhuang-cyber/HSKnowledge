@@ -91,10 +91,16 @@
 | 产物 | `kb/embeddings.f32` + `kb/embeddings.meta.json` |
 | 何时跑 | 改完知识数据后：`npm run build:embeddings` |
 
-**在线查询时**也会对当前 `query` 做一次同样模型的 embedding（`kb-service` 内 Python worker），再与矩阵算余弦相似度。  
+**在线查询时**也会对当前 `query` 做一次同样模型的 embedding（`kb-service` 内 Python **embed worker**），再与矩阵算余弦相似度。  
 「知识库向量预先算好 + 问句现算」——这是我们采用的落地方式。
 
 没有向量文件时：服务仍可启动，`hybrid` **降级为纯关键词**（响应里 `degraded: true`）。
+
+**说明（常见误解）：**
+
+- **embed worker** = 检索进程内的「问句 → 向量」小助手，**不是**独立向量数据库产品。  
+- 相似度比对在 Node 读 `embeddings.f32` 后本地完成；当前约 700 块用暴力余弦即可。  
+- **何时才需要真正的向量库（Faiss/Milvus/Qdrant/云厂商等）：** 块到数万级、多机共用、复杂过滤与向量联查、或高频增量更新。详见仓库 [README](../../README.md) 对应小节。
 
 ### 4.3 在线：召回机制（最关键）
 
